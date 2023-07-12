@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -34,6 +35,8 @@ public class VentanaAddPersona extends JFrame {
 	private JTextField txtApellidos;
 	private JTextField txtNombre;
 	private JTextArea textArea;
+	
+	private ArrayList<Persona> listaPersonas;
 
 	/**
 	 * Launch the application.
@@ -55,6 +58,8 @@ public class VentanaAddPersona extends JFrame {
 	 * Create the frame.
 	 */
 	public VentanaAddPersona() {
+		
+		this.listaPersonas = new ArrayList<Persona>();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 489, 337);
 		contentPane = new JPanel();
@@ -139,7 +144,31 @@ public class VentanaAddPersona extends JFrame {
 				recogerDatos();
 			}
 		});
-		contentPane.add(btnNewButton, "cell 0 4 8 1,alignx center");
+		contentPane.add(btnNewButton, "cell 1 4,alignx center");
+		
+		JButton btnLimpiar = new JButton("Limpiar");
+		btnLimpiar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				limpiarFormulario();
+			}
+		});
+		contentPane.add(btnLimpiar, "cell 3 4");
+		
+		JButton btnBuscar = new JButton("Buscar");
+		btnBuscar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				buscar();
+			}
+		});
+		contentPane.add(btnBuscar, "cell 5 4 2 1");
+		
+		JButton btnNewButton_1 = new JButton("Mostrar");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				muestraPersonas();
+			}
+		});
+		contentPane.add(btnNewButton_1, "cell 7 4");
 		
 		JLabel lblNewLabel_7 = new JLabel("Persona:");
 		contentPane.add(lblNewLabel_7, "cell 0 5");
@@ -148,10 +177,39 @@ public class VentanaAddPersona extends JFrame {
 		contentPane.add(scrollPane, "cell 1 5 7 1,grow");
 		
 		textArea = new JTextArea();
-		textArea.setEnabled(false);
 		textArea.setEditable(false);
 		scrollPane.setViewportView(textArea);
 		textArea.setLineWrap(true);
+	}
+
+	protected void buscar() {
+		String dni = JOptionPane.showInputDialog(contentPane, 
+				"Introduzca DNI", "Buscar por DNI", JOptionPane.QUESTION_MESSAGE);
+		
+		Persona p = new Persona();
+		p.setDni(dni);
+		
+		int indice= this.listaPersonas.indexOf(p);
+		if (indice ==-1) {
+			JOptionPane.showMessageDialog(contentPane, 
+					"No existe ninguna persona con ese DNI",
+					"Dni no encontrado", JOptionPane.ERROR_MESSAGE);
+			textArea.setText("Persona no encontrada");
+			return;
+		}
+		p = this.listaPersonas.get(indice);
+		
+		textArea.setText("Persona encontrada: \n"+p);
+		
+	}
+
+	protected void limpiarFormulario() {
+		txtDNI.setText("");
+		txtNombre.setText("");
+		txtApellidos.setText("");
+		txtDia.setText("Día:");txtDia.setForeground(SystemColor.activeCaption);
+		txtMes.setText("Mes");txtMes.setForeground(SystemColor.activeCaption);
+		txtAnio.setText("Año");txtAnio.setForeground(SystemColor.activeCaption);
 	}
 
 	protected void limpiarHint(FocusEvent e) {
@@ -186,7 +244,10 @@ public class VentanaAddPersona extends JFrame {
 			
 			Persona p1 = new Persona(dni, nombre, apellidos, dia, mes, anyo);
 			
-			textArea.setText(textArea.getText()+p1+"\n\n");
+			insertarPersona(p1);
+			limpiarFormulario();
+			
+			muestraPersonas();
 			
 			
 			
@@ -196,7 +257,33 @@ public class VentanaAddPersona extends JFrame {
 					, "Datos requeridos",
 					JOptionPane.ERROR_MESSAGE);
 		}
+
+	}
+
+	private void muestraPersonas() {
+		textArea.setText("");
+//		for (int i=0;i<this.listaPersonas.size();i++) {
+//			textArea.setText(
+//					textArea.getText()+this.listaPersonas.get(i)+"\n");
+//		}
 		
+		if (this.listaPersonas.size()==0) {
+			textArea.setText("No hay personas para mostrar");
+			return;
+		}
+		for (Persona persona : listaPersonas) {
+			textArea.setText(textArea.getText()+persona+"\n");
+		}
+	}
+
+	private void insertarPersona(Persona p1) {
+		if(this.listaPersonas.contains(p1) ) {
+			JOptionPane.showMessageDialog(contentPane, 
+					"Ya existe una persona con ese DNI", "DNI ya existe", 
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		this.listaPersonas.add(p1);
 		
 	}
 
